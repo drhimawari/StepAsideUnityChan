@@ -15,10 +15,54 @@ public class ItemGenerator : MonoBehaviour {
 	//アイテムを出すx方向の範囲
 	private float posRange = 3.4f;
 
+	//Unityちゃんのオブジェクト
+	private GameObject unitychan;
+	//オブジェクト初回作成距離
+	private int createFirstRange = 40;
+	//オブジェクト動的生成距離
+	private int createRange = 15;
+	//走破距離
+	private int runTotal = 0;
+
 	// Use this for initialization
 	void Start () {
+		
+		//Unityちゃんのオブジェクトを取得
+		this.unitychan = GameObject.Find ("unitychan");
+		CreateObject (startPos, startPos + createFirstRange);
+	}
+
+	// Update is called once per frame
+	void Update () {
+
+		//動的オブジェクト作成
+		if (this.unitychan.transform.position.z < 0) {
+			if ((startPos * -1) + runTotal + (int)this.unitychan.transform.position.z >= createRange){
+				if (startPos + createFirstRange + runTotal + createRange > goalPos) {
+					return;
+				}
+				CreateObject (startPos + createFirstRange + runTotal, startPos + createFirstRange + runTotal + createRange);
+				runTotal += createRange;
+			}
+		} else {
+			if ((startPos * -1) + runTotal - (int)this.unitychan.transform.position.z <= createRange){
+				if (startPos + createFirstRange + runTotal + createRange > goalPos) {
+					return;
+				}
+				CreateObject (startPos + createFirstRange + runTotal, startPos + createFirstRange + runTotal + createRange);
+				runTotal += createRange;
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////
+	//最初に40m分作成し、15m事に続きの15m分を作成する
+	/////////////////////////////////////////////////
+
+
+	void CreateObject(int beginPos, int endPos){
 		//一定の距離ごとにアイテムを生成
-		for (int i = startPos; i < goalPos; i+=15) {
+		for (int i = beginPos; i < endPos; i+=createRange) {
 			//どのアイテムを出すのかをランダムに設定
 			int num = Random.Range (0, 10);
 			if (num <= 1) {
@@ -47,15 +91,6 @@ public class ItemGenerator : MonoBehaviour {
 					}
 				}
 			}
-		}
-	}
-
-	// Update is called once per frame
-	void Update () {
-		// 画面外に出たら破棄する
-		if (this.gameObject.transform.position.z < GameObject.Find("unitychan").transform.position.z - 15){
-			Debug.LogWarning(this.gameObject.name);
-			Destroy (gameObject);
 		}
 	}
 }
